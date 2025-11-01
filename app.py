@@ -1,4 +1,4 @@
-﻿from flask import Flask, render_template, redirect, url_for, flash, session, request
+from flask import Flask, render_template, redirect, url_for, flash, session, request
 import os
 
 app = Flask(__name__)
@@ -30,7 +30,7 @@ def Role_Authentication():
 
 @app.route('//')
 def home():
-    return render_template('home.html')
+    return redirect(url_for('home'))
 
 
 @app.route('//login')
@@ -82,7 +82,7 @@ def tenant_dashboard():
 def Logout():
     session.clear()
     flash('You have been logged out successfully.')
-    return render_template('Home.html')
+    return redirect(url_for('home'))
 
     
 
