@@ -1,4 +1,5 @@
 from flask import Flask, render_template ,url_for
+
 app = Flask(__name__)
 
 @app.route("/")
@@ -12,6 +13,7 @@ def login():
 @app.route("/Register")
 def register():
     return render_template('Register.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
