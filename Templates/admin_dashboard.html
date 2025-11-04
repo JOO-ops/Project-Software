@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+        <title>Home Maintenance System - Dashboard</title>
+    </head>
+    <body>
+    <div class="slidebar">
+        <div>
+            <h2>Home Maintenance</h2>
+            <a href="">Dashboard</a>
+            <a href="">Add Request</a>
+            <a href="">View Request</a>
+            <a href="">Delete Request</a>
+            <a href="">Reports</a>
+            <a href="">Settings</a>
+            <a href="logout.html">Logout</a>
+        </div>
+    </div>
+  <div class="main">
+
+    <div class="top-bar">
+
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search requests..." />
+        <button onclick="searchTable()">🔍</button> 
+      </div>
+
+      <div class="user-actions">
+
+        <a href="profile.html">
+          <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="User" class="user-logo" />
+        </a>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="card">
+        <h3>Total Requests</h3>
+        <p id="totalRequests">24</p> 
+      </div>
+      <div class="card">
+        <h3>Completed</h3>
+        <p id="completed">15</p>
+      </div>
+      <div class="card">
+        <h3>Pending</h3>
+        <p id="pending">9</p> 
+      </div>
+    </div>
+
+    <h2>Recent Maintenance Requests</h2>
+    <table id="requestsTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Request</th>
+          <th>Status</th>
+          <th>Assigned To</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Fix AC</td><td>Pending</td><td>Ali</td><td>2025-11-01</td><td><a href="#">View</a></td></tr>
+        <tr><td>2</td><td>Paint Wall</td><td>Completed</td><td>Omar</td><td>2025-10-27</td><td><a href="#">View</a></td></tr>
+        <tr><td>3</td><td>Plumbing Issue</td><td>Pending</td><td>Ahmed</td><td>2025-10-30</td><td><a href="#">View</a></td></tr>
+        <tr><td>4</td><td>Replace Door</td><td>Completed</td><td>Youssef</td><td>2025-10-15</td><td><a href="#">View</a></td></tr>
+      </tbody>
+    </table>
+
+  </div>
+    </body>
+</html>
