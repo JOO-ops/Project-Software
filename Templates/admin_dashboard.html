@@ -1,76 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
-        <title>Home Maintenance System - Dashboard</title>
-    </head>
-    <body>
-    <div class="slidebar">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+    <title>Home Maintenance System - Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; display: flex; background: #f4f6f9; min-height: 100vh; color: #333; }
+        .sidebar { width: 240px; background: #2c3e50; color: #fff; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; }
+        .sidebar h2 { text-align: center; margin-bottom: 30px; color: #ecf0f1; }
+        .sidebar a { color: #ecf0f1; text-decoration: none; padding: 12px; border-radius: 8px; display: block; margin: 8px 0; transition: 0.3s; cursor: pointer; }
+        .sidebar a:hover { background: #34495e; }
+        .sidebar a.active { background: #34495e; }
+        .main { flex: 1; display: flex; flex-direction: column; padding: 20px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .search-bar { display: flex; align-items: center; background: #ecf0f1; border-radius: 8px; padding: 5px 10px; }
+        .search-bar input { border: none; outline: none; background: none; padding: 5px; width: 200px; }
+        .search-bar button { border: none; background: none; cursor: pointer; font-size: 16px; padding: 5px 10px; }
+        .user-actions { display: flex; align-items: center; gap: 15px; }
+        .user-logo { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+        .logout-btn { padding: 8px 16px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        .logout-btn:hover { background: #c0392b; }
+        .stats { display: flex; gap: 20px; margin: 20px 0; }
+        .card { flex: 1; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+        .card h3 { color: #2c3e50; margin-bottom: 10px; font-size: 16px; }
+        .card p { font-size: 32px; font-weight: bold; color: #3498db; }
+        .content-section { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .content-section h2 { color: #2c3e50; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #2c3e50; color: #fff; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .status-badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-in-progress { background: #cfe2ff; color: #084298; }
+        .action-link { color: #3498db; text-decoration: none; font-weight: 500; }
+        .action-link:hover { text-decoration: underline; }
+        footer { text-align: center; margin-top: auto; padding: 15px; font-size: 14px; color: #777; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
         <div>
             <h2>Home Maintenance</h2>
-            <a href="">Dashboard</a>
-            <a href="">Add Request</a>
-            <a href="">View Request</a>
-            <a href="">Delete Request</a>
-            <a href="">Reports</a>
-            <a href="">Settings</a>
-            <a href="logout.html">Logout</a>
+            <a href="#" class="active">Dashboard</a> <!-- replace with Flask url_for('dashboard') -->
+            <a href="#">Add Request</a> <!-- replace with Flask url_for('add_request') -->
+            <a href="#">View Requests</a> <!-- replace with Flask url_for('view_requests') -->
+            <a href="#">Delete Request</a> <!-- replace with Flask url_for('delete_request') -->
+            <a href="#">Reports</a> <!-- replace with Flask url_for('reports') -->
+            <a href="#">Settings</a> <!-- replace with Flask url_for('settings') -->
+        </div>
+        <div>
+            <a href="#">Logout</a> <!-- replace with Flask url_for('logout') -->
         </div>
     </div>
-  <div class="main">
 
-    <div class="top-bar">
+    <div class="main">
+        <div class="top-bar">
+            <form action="#" method="GET" class="search-bar"> <!-- replace with Flask url_for('dashboard') -->
+                <input type="text" name="search" placeholder="Search requests..." value="" /> <!-- replace with Flask: request.args.get('search','') -->
+                <button type="submit">🔍</button>
+            </form>
 
-      <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search requests..." />
-        <button onclick="searchTable()">🔍</button> 
-      </div>
+            <div class="user-actions">
+                <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="User" class="user-logo" />
+                <a href="logout.html">Logout</a> <!-- replace with Flask url_for('logout') -->
+            </div>
+        </div>
 
-      <div class="user-actions">
+        <div class="stats">
+            <div class="card">
+                <h3>Total Requests</h3>
+                <p>24</p> <!-- replace with Flask total_requests -->
+            </div>
+            <div class="card">
+                <h3>Completed</h3>
+                <p>15</p> <!-- replace with Flask completed -->
+            </div>
+            <div class="card">
+                <h3>Pending</h3>
+                <p>9</p> <!-- replace with Flask pending -->
+            </div>
+        </div>
 
-        <a href="profile.html">
-          <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="User" class="user-logo" />
-        </a>
-        <button class="logout-btn" onclick="logout()">Logout</button>
-      </div>
+        <div class="content-section">
+            <h2>Recent Maintenance Requests</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Request</th>
+                        <th>Status</th>
+                        <th>Assigned To</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td> <!-- replace with Flask req.id -->
+                        <td>Fix AC</td> <!-- replace with Flask req.title -->
+                        <td><span class="status-badge status-pending">Pending</span></td> <!-- replace with Flask req.status -->
+                        <td>Ali</td> <!-- replace with Flask req.assigned_to_name -->
+                        <td>2025-11-01</td> <!-- replace with Flask req.date -->
+                        <td><a href="#">View</a> <!-- replace with Flask url_for('view_request', req.id) --></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Paint Wall</td>
+                        <td><span class="status-badge status-completed">Completed</span></td>
+                        <td>Omar</td>
+                        <td>2025-10-27</td>
+                        <td><a href="#">View</a></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Plumbing Issue</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>Ahmed</td>
+                        <td>2025-10-30</td>
+                        <td><a href="#">View</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Home Maintenance System. All rights reserved.</p>
+        </footer>
     </div>
-
-    <div class="stats">
-      <div class="card">
-        <h3>Total Requests</h3>
-        <p id="totalRequests">24</p> 
-      </div>
-      <div class="card">
-        <h3>Completed</h3>
-        <p id="completed">15</p>
-      </div>
-      <div class="card">
-        <h3>Pending</h3>
-        <p id="pending">9</p> 
-      </div>
-    </div>
-
-    <h2>Recent Maintenance Requests</h2>
-    <table id="requestsTable">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Request</th>
-          <th>Status</th>
-          <th>Assigned To</th>
-          <th>Date</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>1</td><td>Fix AC</td><td>Pending</td><td>Ali</td><td>2025-11-01</td><td><a href="#">View</a></td></tr>
-        <tr><td>2</td><td>Paint Wall</td><td>Completed</td><td>Omar</td><td>2025-10-27</td><td><a href="#">View</a></td></tr>
-        <tr><td>3</td><td>Plumbing Issue</td><td>Pending</td><td>Ahmed</td><td>2025-10-30</td><td><a href="#">View</a></td></tr>
-        <tr><td>4</td><td>Replace Door</td><td>Completed</td><td>Youssef</td><td>2025-10-15</td><td><a href="#">View</a></td></tr>
-      </tbody>
-    </table>
-
-  </div>
-    </body>
-</html>
+</body>
