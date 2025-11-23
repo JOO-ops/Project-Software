@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logged Out - Home Maintenance System</title>
+    <style>
+    /* ===== Basic Reset ===== */
+    * 
+    {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body
+    {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9; /* Light background */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh; /* Full height */
+      color: #333;
+    }
+
+    /* ===== Card Container ===== */
+    .logout-card 
+    {
+      background: #fff;
+      padding: 40px 50px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 400px;
+    }
+
+    /* ===== Heading ===== */
+    h1 
+    {
+      color: #27ae60; /* Success green */
+      margin-bottom: 10px;
+    }
+
+    /* ===== Text ===== */
+    p 
+    {
+      margin-bottom: 30px;
+      color: #555;
+    }
+
+    /* ===== Buttons ===== */
+    .btn 
+    {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 8px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      text-decoration: none;
+      color: #ffffff;
+      background: #2c3e50;
+      transition: background 0.3s;
+    }
+
+    .btn:hover 
+    {
+      background: #34495e;
+    }
+
+    /* Special color for sign-in */
+    .btn-signin 
+    {
+      background: #27ae60;
+    }
+    .btn-signin:hover 
+    {
+      background: #2ecc71;
+    }
+  </style>
+</head>
+<body>
+  <div class="logout-card">
+    <h1>Logged Out Successfully</h1>
+    <p>You have been logged out of your account.</p>
+
+    <a href="login.html" class="btn btn-signin">Sign In Again</a>
+    <a href="Home.html" class="btn">Go to Home Page</a>
+  </div>
+</body>
+</html>
