@@ -9,7 +9,7 @@
         <h1>Home Maintenance</h1>
         <h3>Fill Your Register Data</h3>
 
-        <form action="action">
+        <form action="{{ url_for('register') }}" method="POST">
             <label for="first">Enter Your First Name:</label>
             <input type="text" id="First" name="first" placeholder="Enter Your First Name" required>
 
@@ -38,12 +38,12 @@
                 <option value="Female">Female</option>
             </select>
 
-            <button type="submit">Submit</button>
+            <button type="Register">Register</button>
         </form>
 
         <p>
             Already Registered?
-            <a href="login.html">Login</a>
+            <a href="{{ url_for('login') }}">Login</a>
         </p>
     </div>
 </body>
