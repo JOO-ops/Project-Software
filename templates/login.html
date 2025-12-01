@@ -1,41 +1,38 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>
-            Login
-        </title>
-    </head>
-    <body>
-        <div class="main">
-            <h1> Home Mentance </h1>
-            <h3>
-                Enter you login credential
-            </h3>
-            <form action="action">
-                <label for="first">
-                    UserName:
-                </label>
-            <input type="text" id="first" name="first" placeholder="Enter Your UserName" required> <br></br>
-                <label for="Password">
-                    Password:
-                </label>
-            <input type="password" id="password" name="password"placeholder="Enter Your Password" required> <br></br>
-            
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body>
+    <div class="main">
+        <h1>Home Maintenance</h1>
+        <h3>
+            Enter your login credentials
+        </h3>
+        <form action="action">
+            <label for="first">
+                Username:
+            </label>
+            <input type="text" id="first" name="first" placeholder="Enter Your Username" required> <br>
+
+            <label for="password">
+                Password:
+            </label>
+            <input type="password" id="password" name="password" placeholder="Enter Your Password" required> <br>
 
             <div class="wrap">
-                <button type="submit ">
-                    submit
+                <button type="Login">
+                    Login
                 </button>
-
             </div>
         </form>
-        <p>
-            Not Register?
-            <a href="register.html" style=': none;'>
-                Create Account
-            </a>
+         <p>
+            Already Registered?  
+            <a href="{{ url_for('register') }}">Create Account</a>
         </p>
-        </div>
-    
-    </body>
+    </div>
+</body>
 </html>

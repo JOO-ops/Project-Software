@@ -1,0 +1,87 @@
+/* Register Page Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+}
+
+.main {
+    background: #fff;
+    padding: 40px 50px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    width: 420px; /* wider for many fields */
+    text-align: center;
+}
+
+.main h1 {
+    margin-bottom: 10px;
+    color: #2575fc;
+}
+
+.main h3 {
+    margin-bottom: 25px;
+    font-weight: normal;
+    color: #555;
+}
+
+/* Input fields */
+.main input,
+.main select {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 8px 0 20px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.main input:focus,
+.main select:focus {
+    border-color: #2575fc;
+    box-shadow: 0 0 5px rgba(37,117,252,0.5);
+}
+
+/* Button */
+.main button {
+    width: 100%;
+    padding: 12px;
+    background-color: #2575fc;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.main button:hover {
+    background-color: #6a11cb;
+}
+
+/* Bottom text */
+.main p {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #555;
+}
+
+.main p a {
+    text-decoration: none;
+    color: #2575fc;
+    font-weight: bold;
+}
+
+.main p a:hover {
+    text-decoration: underline;
+}
