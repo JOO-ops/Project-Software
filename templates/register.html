@@ -9,31 +9,32 @@
         <h1>Home Maintenance</h1>
         <h3>Fill Your Register Data</h3>
 
-        <form action="action">
+        <!-- Form posts to Flask register route -->
+        <form method="POST" action="{{ url_for('register') }}">
             <label for="first">Enter Your First Name:</label>
             <input type="text" id="First" name="first" placeholder="Enter Your First Name" required>
 
             <label for="Last">Enter Your Last Name:</label>
-            <input type="text" id="second" name="Last" placeholder="Enter Your Last Name" required>
+            <input type="text" id="second" name="last" placeholder="Enter Your Last Name" required>
 
             <label for="Email">Enter Your Email:</label>
-            <input type="text" id="Email" name="Email" placeholder="Enter Your Email" required>
+            <input type="email" id="Email" name="email" placeholder="Enter Your Email" required>
 
             <label for="Password">Password:</label>
-            <input type="password" id="Password" name="Password" placeholder="Enter password" required>
+            <input type="password" id="Password" name="password" placeholder="Enter password" required>
 
             <label for="role">Role</label>
-            <select name="Role" id="role" required>
-                <option value="Tennent">Tennent</option>
-                <option value="Admin">Admin</option>
-                <option value="Tech">Technician</option>
+            <select name="role" id="role" required>
+                <option value="tenant">Tenant</option>
+                <option value="admin">Admin</option>
+                <option value="technician">Technician</option>
             </select>
 
             <label for="Date">Select Your Birthday</label>
-            <input type="date" id="Date" name="Date" required>
+            <input type="date" id="Date" name="birthday" required>
 
             <label for="Gender">Gender:</label>
-            <select name="Gender" id="Gender" required>
+            <select name="gender" id="Gender" required>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
             </select>
@@ -43,7 +44,7 @@
 
         <p>
             Already Registered?
-            <a href="login.html">Login</a>
+            <a href="{{ url_for('login') }}">Login</a>
         </p>
     </div>
 </body>

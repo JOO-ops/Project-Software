@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
     <title>Home Maintenance System - Dashboard</title>
     <style>
+        /* Keep all your existing CSS exactly the same */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; display: flex; background: #f4f6f9; min-height: 100vh; color: #333; }
         .sidebar { width: 240px; background: #2c3e50; color: #fff; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; }
@@ -44,43 +45,43 @@
     <div class="sidebar">
         <div>
             <h2>Home Maintenance</h2>
-            <a href="#" class="active">Dashboard</a> <!-- replace with Flask url_for('dashboard') -->
-            <a href="#">Add Request</a> <!-- replace with Flask url_for('add_request') -->
-            <a href="#">View Requests</a> <!-- replace with Flask url_for('view_requests') -->
-            <a href="#">Delete Request</a> <!-- replace with Flask url_for('delete_request') -->
-            <a href="#">Reports</a> <!-- replace with Flask url_for('reports') -->
-            <a href="#">Settings</a> <!-- replace with Flask url_for('settings') -->
+            <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
+            <a href="{{ url_for('add_request') }}">Add Request</a>
+            <a href="{{ url_for('view_requests') }}">View Requests</a>
+            <a href="{{ url_for('delete_request') }}">Delete Request</a>
+            <a href="{{ url_for('reports') }}">Reports</a>
+            <a href="{{ url_for('settings') }}">Settings</a>
         </div>
         <div>
-            <a href="#">Logout</a> <!-- replace with Flask url_for('logout') -->
+            <a href="{{ url_for('logout') }}">Logout</a>
         </div>
     </div>
 
     <div class="main">
         <div class="top-bar">
-            <form action="#" method="GET" class="search-bar"> <!-- replace with Flask url_for('dashboard') -->
-                <input type="text" name="search" placeholder="Search requests..." value="" /> <!-- replace with Flask: request.args.get('search','') -->
+            <form action="{{ url_for('dashboard') }}" method="GET" class="search-bar">
+                <input type="text" name="search" placeholder="Search requests..." value="{{ request.args.get('search','') }}" />
                 <button type="submit">🔍</button>
             </form>
 
             <div class="user-actions">
                 <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="User" class="user-logo" />
-                <a href="logout.html">Logout</a> <!-- replace with Flask url_for('logout') -->
+                <a href="{{ url_for('logout') }}">Logout</a>
             </div>
         </div>
 
         <div class="stats">
             <div class="card">
                 <h3>Total Requests</h3>
-                <p>24</p> <!-- replace with Flask total_requests -->
+                <p>{{ total_requests }}</p>
             </div>
             <div class="card">
                 <h3>Completed</h3>
-                <p>15</p> <!-- replace with Flask completed -->
+                <p>{{ completed_requests }}</p>
             </div>
             <div class="card">
                 <h3>Pending</h3>
-                <p>9</p> <!-- replace with Flask pending -->
+                <p>{{ pending_requests }}</p>
             </div>
         </div>
 
@@ -98,30 +99,21 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for req in requests %}
                     <tr>
-                        <td>1</td> <!-- replace with Flask req.id -->
-                        <td>Fix AC</td> <!-- replace with Flask req.title -->
-                        <td><span class="status-badge status-pending">Pending</span></td> <!-- replace with Flask req.status -->
-                        <td>Ali</td> <!-- replace with Flask req.assigned_to_name -->
-                        <td>2025-11-01</td> <!-- replace with Flask req.date -->
-                        <td><a href="#">View</a> <!-- replace with Flask url_for('view_request', req.id) --></td>
+                        <td>{{ req.id }}</td>
+                        <td>{{ req.title }}</td>
+                        <td>
+                            <span class="status-badge 
+                                {% if req.status == 'Pending' %}status-pending{% elif req.status == 'Completed' %}status-completed{% else %}status-in-progress{% endif %}">
+                                {{ req.status }}
+                            </span>
+                        </td>
+                        <td>{{ req.assigned_to_name }}</td>
+                        <td>{{ req.date }}</td>
+                        <td><a href="{{ url_for('view_request', request_id=req.id) }}" class="action-link">View</a></td>
                     </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Paint Wall</td>
-                        <td><span class="status-badge status-completed">Completed</span></td>
-                        <td>Omar</td>
-                        <td>2025-10-27</td>
-                        <td><a href="#">View</a></td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Plumbing Issue</td>
-                        <td><span class="status-badge status-pending">Pending</span></td>
-                        <td>Ahmed</td>
-                        <td>2025-10-30</td>
-                        <td><a href="#">View</a></td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -131,3 +123,4 @@
         </footer>
     </div>
 </body>
+</html>

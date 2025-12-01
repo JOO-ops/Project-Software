@@ -1,100 +1,53 @@
 from flask import Flask, render_template, redirect, url_for, flash, session, request
 from functools import wraps
-import os
-import hashlib
-import uuid     # <-- Add this import
 
 app = Flask(__name__)
+app.secret_key = "demo-secret-key"
 
-
-def get_db_connection():
-    pass
-
-
-def Generate_id():
-    return str(uuid.uuid4())   # <-- Fully working UUID generator
-
-
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
-
-
-def check_password(password, hashed):
-    return hashlib.sha256(password.encode()).hexdigest() == hashed
-
-
-def login_Authentication(f):
+# --------------------- LOGIN PROTECTION -----------------------
+def login_required(f):
     @wraps(f)
-    def decorated_function(*args, **Kwargs):
+    def decorated_function(*args, **kwargs):
         if 'User_id' not in session:
-            flash('Please log in to access this page.')
+            flash("Please log in first.")
             return redirect(url_for("login"))
-        return f(*args, **Kwargs)
+        return f(*args, **kwargs)
     return decorated_function
 
-
-def Role_Authentication(allowed_roles):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **Kwargs):
-            if 'role' not in session:
-                flash('Access denied. Please log in.')
-                return redirect(url_for("login"))
-            if session['role'] not in allowed_roles:
-                flash('Access denied. Insufficient privileges.')
-                return redirect(url_for("home"))
-            return f(*args, **Kwargs)
-        return decorated_function
-    return decorator
-
-
+# --------------------- HOME -----------------------
 @app.route('/')
 def home():
-    if 'User_id' in session:
-        return redirect(url_for('dashboard'))
-    return redirect(url_for("login"))
+    return render_template("home.html")
 
+# --------------------- ABOUT -----------------------
+@app.route('/about')
+def about():
+    return render_template("about.html")
 
-@app.route('/login', methods=["GET", "POST"])
-def login():
-    if request.method == 'POST':
-        email = request.form.get("email")
-        password = request.form.get("password")
-        # TODO -> Database check here
-    return render_template("login.html")
-
-
+# --------------------- REGISTER -----------------------
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        fname = request.form.get('fname')
-        lname = request.form.get('lname')
-        email = request.form.get("email")
-        password = request.form.get("password")
-        role = request.form.get('role', 'tenant')
-        birth_date = request.form.get('date')
-        gender = request.form.get("gender")
-
-        existing_user = 0  # Replace with SQL query
-
-        if existing_user:
-            flash('Email already registered.')
-            return render_template('register.html')
-
-        user_id = Generate_id()
-        hashed_pw = hash_password(password)
-
-        # TODO -> SQL INSERT user here
-
-        flash('Registration successful! Please log in.')
+        flash("Registration completed successfully!")
         return redirect(url_for("login"))
     return render_template("register.html")
 
+# --------------------- LOGIN -----------------------
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        role = request.form.get("role").lower()  # normalize to lowercase
+        session['User_id'] = "demo-user"
+        session['role'] = role
+        flash("Logged in successfully!")
+        return redirect(url_for("dashboard"))
+    return render_template("login.html")
 
+# --------------------- DASHBOARD ROUTER -----------------------
 @app.route('/dashboard')
-@login_Authentication
+@login_required
 def dashboard():
-    role = session.get('role')
+    role = session.get('role').lower()
     if role == 'admin':
         return redirect(url_for('admin_dashboard'))
     elif role == 'technician':
@@ -102,37 +55,100 @@ def dashboard():
     else:
         return redirect(url_for('tenant_dashboard'))
 
+# --------------------- FAKE DASHBOARD DATA -----------------------
+fake_requests = [
+    {"id": 1, "title": "Fix AC", "status": "Pending", "assigned_to_name": "Ali", "date": "2025-11-01"},
+    {"id": 2, "title": "Paint Wall", "status": "Completed", "assigned_to_name": "Omar", "date": "2025-10-27"},
+    {"id": 3, "title": "Plumbing Issue", "status": "Pending", "assigned_to_name": "Ahmed", "date": "2025-10-30"}
+]
 
+def get_dashboard_stats():
+    total = len(fake_requests)
+    completed = len([r for r in fake_requests if r['status'] == 'Completed'])
+    pending = len([r for r in fake_requests if r['status'] == 'Pending'])
+    return total, completed, pending
+
+# --------------------- DASHBOARDS -----------------------
 @app.route('/admin/dashboard')
+@login_required
 def admin_dashboard():
-    if session.get('role') != 'admin':
-        flash('Access denied. Admin privileges required.')
+    if session.get('role').lower() != 'admin':
+        flash("Access denied. Admin only.")
         return redirect(url_for('dashboard'))
-    return render_template('admin_dashboard.html')
-
+    total, completed, pending = get_dashboard_stats()
+    return render_template('admin_dashboard.html', total_requests=total,
+                           completed_requests=completed, pending_requests=pending,
+                           requests=fake_requests, role="Admin")
 
 @app.route('/tech/dashboard')
+@login_required
 def technician_dashboard():
-    if session.get('role') != 'technician':
-        flash('Access denied.')
+    if session.get('role').lower() != 'technician':
+        flash("Access denied.")
         return redirect(url_for('dashboard'))
-    return render_template('tech_dashboard.html')
-
+    total, completed, pending = get_dashboard_stats()
+    return render_template('tech_dashboard.html', total_requests=total,
+                           completed_requests=completed, pending_requests=pending,
+                           requests=fake_requests, role="Technician")
 
 @app.route('/tenant/dashboard')
+@login_required
 def tenant_dashboard():
-    if session.get('role') != 'tenant':
-        flash('Access denied')
+    if session.get('role').lower() != 'tenant':
+        flash("Access denied.")
         return redirect(url_for('dashboard'))
-    return render_template('tenant_dashboard.html')
+    total, completed, pending = get_dashboard_stats()
+    return render_template('tenant_dashboard.html', total_requests=total,
+                           completed_requests=completed, pending_requests=pending,
+                           requests=fake_requests, role="Tenant")
 
+# --------------------- PLACEHOLDER ROUTES -----------------------
+@app.route('/add_request')
+@login_required
+def add_request():
+    flash("Add request page placeholder.")
+    return redirect(url_for('dashboard'))
 
+@app.route('/view_requests')
+@login_required
+def view_requests():
+    flash("View requests page placeholder.")
+    return redirect(url_for('dashboard'))
+
+@app.route('/delete_request')
+@login_required
+def delete_request():
+    flash("Delete request page placeholder.")
+    return redirect(url_for('dashboard'))
+
+@app.route('/reports')
+@login_required
+def reports():
+    flash("Reports page placeholder.")
+    return redirect(url_for('dashboard'))
+
+@app.route('/settings')
+@login_required
+def settings():
+    flash("Settings page placeholder.")
+    return redirect(url_for('dashboard'))
+
+@app.route('/view_request/<int:request_id>')
+@login_required
+def view_request(request_id):
+    req = next((r for r in fake_requests if r['id'] == request_id), None)
+    if not req:
+        flash("Request not found.")
+        return redirect(url_for('dashboard'))
+    return render_template("view_request.html", req=req)
+
+# --------------------- LOGOUT -----------------------
 @app.route('/logout')
-def Logout():
+def logout():
     session.clear()
-    flash('You have been logged out successfully.')
-    return redirect(url_for('login'))
+    flash("Logged out successfully.")
+    return redirect(url_for("home"))
 
-
-if __name__ == '__main__':
+# --------------------- RUN APP -----------------------
+if __name__ == "__main__":
     app.run(debug=True)
