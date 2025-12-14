@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Technician - Reports</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;display:flex;background:#f4f6f9;min-height:100vh}
+.sidebar{width:240px;background:#2c3e50;color:#fff;padding:20px}
+.sidebar a{color:#fff;display:block;padding:12px}
+.main{flex:1;padding:20px}
+form{background:#fff;padding:20px;border-radius:10px}
+input,textarea{width:100%;margin-bottom:10px;padding:10px}
+button{padding:10px 20px}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<h2>Technician Panel</h2>
+<a href="tech_reports.html" class="active">Reports</a>
+<a href="logout.html">Logout</a>
+</div>
+
+<div class="main">
+<h2>Submit Report</h2>
+
+<form>
+<input placeholder="Work Order ID">
+<textarea placeholder="Report details"></textarea>
+<button>Submit</button>
+</form>
+</div>
+</body>
+</html>
