@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
+</head>
+<body>
+    <div class="main">
+        <h1>Home Maintenance</h1>
+        <h3>Fill Your Register Data</h3>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul style="color: red;">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        <form action="{{ url_for('register') }}" method="POST">
+            <label for="first_name_input">Enter Your First Name:</label>
+            <input type="text" id="first_name_input" name="fname" placeholder="Enter Your First Name" required>
+
+            <label for="last_name_input">Enter Your Last Name:</label>
+            <input type="text" id="last_name_input" name="lname" placeholder="Enter Your Last Name" required>
+
+            <label for="email_input">Enter Your Email:</label>
+            <input type="text" id="email_input" name="email" placeholder="Enter Your Email" required>
+
+            <label for="password_input">Password:</label>
+            <input type="password" id="password_input" name="password" placeholder="Enter password" required>
+
+            <label for="role_select">Role</label>
+            <select name="role" id="role_select" required>
+                <option value="tenant">Tenant</option>
+                <option value="admin">Admin</option>
+                <option value="technician">Technician</option>
+            </select>
+
+            <label for="date_input">Select Your Birthday</label>
+            <input type="date" id="date_input" name="date" required>
+
+            <label for="gender_select">Gender:</label>
+            <select name="gender" id="gender_select" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <p>
+            Already Registered?
+            <a href="{{ url_for('login') }}">Login</a>
+        </p>
+    </div>
+</body>
+</html>
