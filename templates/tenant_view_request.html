@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>View Request</title>
+
+<style>
+body{font-family:Arial;background:#f4f6f9;padding:40px}
+.box{background:#fff;padding:25px;border-radius:10px;max-width:600px;margin:auto}
+p{margin:10px 0}
+a{display:inline-block;margin-top:20px;color:#3498db;text-decoration:none}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2>Request Details</h2>
+
+<p><strong>Title:</strong> {{ request.title }}</p>
+<p><strong>Description:</strong> {{ request.description }}</p>
+<p><strong>Status:</strong> {{ request.status }}</p>
+<p><strong>Date:</strong> {{ request.date }}</p>
+
+<a href="{{ url_for('tenant_all_requests') }}">← Back</a>
+</div>
+
+</body>
+</html>

@@ -469,8 +469,97 @@ def technician_dashboard():
 @app.route('/tenant/dashboard')
 @Role_Authentication(["tenant"])
 def tenant_dashboard():
-    # You would typically fetch tenant request stats here
-    return render_template('tenant_dashboard.html', role=session.get('role'))
+    tenant_id = session.get('User_id')
+    search = request.args.get('search', '')
+
+    conn = get_db_connection()
+
+    # Stats
+    total = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE user_id = ?", (tenant_id,)
+    ).fetchone()[0]
+
+    in_progress = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE user_id = ? AND status IN ('Pending', 'In Progress')", (tenant_id,)
+    ).fetchone()[0]
+
+    completed = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE user_id = ? AND status='Completed'", (tenant_id,)
+    ).fetchone()[0]
+
+    # Recent requests
+    query = "SELECT id, title, status, date FROM requests WHERE user_id = ?"
+    params = [tenant_id]
+    if search:
+        query += " AND title LIKE ?"
+        params.append(f'%{search}%')
+    query += " ORDER BY date DESC LIMIT 10"
+    recent = conn.execute(query, params).fetchall()
+    conn.close()
+
+    return render_template('tenant_dashboard.html', total=total, in_progress=in_progress,
+                           completed=completed, recent=recent, search=search)
+
+# ----------------- SUBMIT REQUEST -----------------
+@app.route('/tenant/submit_request', methods=['GET', 'POST'])
+@Role_Authentication(["tenant"])
+def submit_request():
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        tenant_id = session.get('User_id')
+
+        if not title or not description:
+            flash("Title and Description are required.", "error")
+            return render_template('tenant_submit_request.html')
+
+        req_id = Generate_id()
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        conn = get_db_connection()
+        conn.execute(
+            "INSERT INTO requests (id, title, description, status, assigned_to, date, user_id) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (req_id, title, description, "Pending", None, date, tenant_id)
+        )
+        conn.commit()
+        conn.close()
+
+        flash("Request submitted successfully!", "success")
+        return redirect(url_for('tenant_dashboard'))
+
+    return render_template('tenant_submit_request.html')
+
+# ----------------- VIEW SINGLE REQUEST -----------------
+@app.route('/tenant/request/<req_id>')
+@Role_Authentication(["tenant"])
+def view_single_request(req_id):
+    tenant_id = session.get('User_id')
+    conn = get_db_connection()
+    req = conn.execute(
+        "SELECT r.*, u.fname AS tenant_fname, u.lname AS tenant_lname "
+        "FROM requests r JOIN users u ON r.user_id = u.id "
+        "WHERE r.id = ? AND r.user_id = ?", (req_id, tenant_id)
+    ).fetchone()
+    conn.close()
+
+    if not req:
+        flash("Access Denied or Request not found.", 'error')
+        return redirect(url_for('tenant_dashboard'))
+
+    return render_template('tenant_view_request.html', request=req, role=session.get('role'))
+
+# ----------------- ALL REQUESTS -----------------
+@app.route('/tenant/requests')
+@Role_Authentication(["tenant"])
+def tenant_all_requests():
+    tenant_id = session.get('User_id')
+    conn = get_db_connection()
+    all_requests = conn.execute(
+        "SELECT id, title, status, date FROM requests WHERE user_id = ? ORDER BY date DESC", (tenant_id,)
+    ).fetchall()
+    conn.close()
+    return render_template('tenant_all_requests.html', requests=all_requests, role=session.get('role'))
 
 
 # ----------------- LOGOUT -----------------
