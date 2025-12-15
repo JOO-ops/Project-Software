@@ -561,6 +561,7 @@ def tenant_all_requests():
     conn.close()
     return render_template('tenant_all_requests.html', requests=all_requests, role=session.get('role'))
 
+
 # ----------------- LOGOUT -----------------
 @app.route('/logout')
 def logout():
@@ -570,3 +571,4 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
