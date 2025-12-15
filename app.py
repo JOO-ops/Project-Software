@@ -472,6 +472,7 @@ def tenant_dashboard():
     # You would typically fetch tenant request stats here
     return render_template('tenant_dashboard.html', role=session.get('role'))
 
+
 # ----------------- LOGOUT -----------------
 @app.route('/logout')
 def logout():
