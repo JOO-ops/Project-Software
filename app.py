@@ -77,6 +77,7 @@ def init_db():
 
     # Insert test requests (Added a 'description' column for a more complete table)
     # Use current date/time for request submission
+    
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     test_requests = [
         ("r1", "Fix AC", "AC is blowing hot air.", "Pending", "3", current_time, "2"),
@@ -139,7 +140,7 @@ def Role_Authentication(allowed_roles):
 def home():
     if 'User_id' in session:
         return redirect(url_for('dashboard'))
-    return redirect(url_for("login"))
+    return render_template("Home.html")
 
 # ----------------- LOGIN -----------------
 @app.route('/login', methods=["GET", "POST"])
@@ -333,7 +334,8 @@ def admin_view_tenant_requests(tenant_id):
                            completed=completed,
                            in_progress=in_progress,
                            recent=formatted_recent,
-                           role=session.get('role'))
+                           role=session.get('role'),
+                           active_page='users')
 
 # ----------------- ADMIN - MANAGE SINGLE REQUEST (NEW) -----------------
 @app.route('/admin/manage_request/<request_id>', methods=['GET', 'POST'])
@@ -417,8 +419,7 @@ def admin_users():
     conn = get_db_connection()
     users = conn.execute("SELECT id, fname, lname, email, role FROM users ORDER BY role, lname").fetchall()
     conn.close()
-    
-    # A simple new template (admin_users.html) would be best.
+    users = [dict(user) for user in users]
     return render_template('admin_users.html', users=users, active_page='users')
 
 # ----------------- ADMIN - ALL REQUESTS -----------------
@@ -567,7 +568,7 @@ def tenant_all_requests():
 def logout():
     session.clear()
     flash('You have been logged out successfully.')
-    return redirect(url_for('login'))
+    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True)
