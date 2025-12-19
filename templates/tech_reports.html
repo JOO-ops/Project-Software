@@ -119,10 +119,6 @@ button:hover {
        Schedule
     </a>
 
-    <a href="{{ url_for('tech_earnings') }}"
-       class="{{ 'active' if active_page == 'earnings' else '' }}">
-       Earnings
-    </a>
 
     <a href="{{ url_for('tech_inventory') }}"
        class="{{ 'active' if active_page == 'inventory' else '' }}">
@@ -132,11 +128,6 @@ button:hover {
     <a href="{{ url_for('tech_reports') }}"
        class="{{ 'active' if active_page == 'reports' else '' }}">
        Reports
-    </a>
-
-    <a href="{{ url_for('tech_profile') }}"
-       class="{{ 'active' if active_page == 'profile' else '' }}">
-       Profile
     </a>
 
             <a href="{{ url_for('logout') }}">
