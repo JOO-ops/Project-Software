@@ -33,6 +33,15 @@
     .action-btn { padding: 6px 12px; background: #3498db; color: #fff; border-radius: 6px; text-decoration: none; font-size: 13px; }
     .action-btn:hover { background: #2c80b4; }
     footer { text-align: center; margin-top: auto; padding: 15px; font-size: 14px; color: #777; }
+    .action-btn {
+    padding: 6px 12px;
+    background: #3498db;
+    color: #fff;
+    border-radius: 6px;
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+    }
 </style>
 </head>
 <body>
@@ -103,7 +112,18 @@
                     </td>
                     <td>{{ job.date }}</td>
                     <td>
-                        <a href="#" class="action-btn">Update</a>
+                        <form method="POST" action="{{ url_for('tech_update_status', request_id=job.id) }}">
+                            <select name="status" onchange="this.form.submit()" class="action-btn">
+                                <option value="" disabled selected>Update</option>
+                                <option value="In Progress" {% if job.status == 'In Progress' %}selected{% endif %}>
+                                    In Progress
+                                </option>
+                                <option value="Completed" {% if job.status == 'Completed' %}selected{% endif %}>
+                                    Completed
+                                </option>
+                            </select>
+                        </form>
+
                     </td>
                 </tr>
                 {% else %}
