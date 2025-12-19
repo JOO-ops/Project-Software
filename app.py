@@ -547,7 +547,44 @@ def admin_create_request():
 @login_Authentication
 @Role_Authentication(['technician'])
 def technician_dashboard():
-    return render_template('tech_dashboard.html', active_page='dashboard')
+    conn = get_db_connection()
+    tech_id = session.get('User_id')
+
+    # ---- Stats (same method as admin, but filtered) ----
+    total = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE assigned_to = ?",
+        (tech_id,)
+    ).fetchone()[0]
+
+    completed = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE assigned_to = ? AND status = 'Completed'",
+        (tech_id,)
+    ).fetchone()[0]
+
+    pending = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE assigned_to = ? AND status = 'Pending'",
+        (tech_id,)
+    ).fetchone()[0]
+
+    # ---- Table data (same idea as admin recent requests) ----
+    jobs = conn.execute("""
+        SELECT id, title, status, date
+        FROM requests
+        WHERE assigned_to = ?
+        ORDER BY date DESC
+    """, (tech_id,)).fetchall()
+
+    conn.close()
+
+    return render_template(
+        'tech_dashboard.html',
+        total=total,
+        completed=completed,
+        pending=pending,
+        jobs=jobs,
+        active_page='dashboard'
+    )
+
 
 
 @app.route('/tech/job-queue')
@@ -590,6 +627,41 @@ def tech_reports():
 @Role_Authentication(['technician'])
 def tech_profile():
     return render_template('tech_profile.html', active_page='profile')
+
+@app.route('/tech/update_status/<request_id>', methods=['POST'])
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_update_status(request_id):
+    new_status = request.form.get('status')
+    tech_id = session.get('User_id')
+
+    if new_status not in ['In Progress', 'Completed']:
+        flash("Invalid status.", "error")
+        return redirect(url_for('technician_dashboard'))
+
+    conn = get_db_connection()
+
+    # Security check: technician can only update their own jobs
+    job = conn.execute(
+        "SELECT * FROM requests WHERE id = ? AND assigned_to = ?",
+        (request_id, tech_id)
+    ).fetchone()
+
+    if not job:
+        conn.close()
+        flash("Unauthorized action.", "error")
+        return redirect(url_for('technician_dashboard'))
+
+    conn.execute(
+        "UPDATE requests SET status = ? WHERE id = ?",
+        (new_status, request_id)
+    )
+    conn.commit()
+    conn.close()
+
+    flash("Job status updated successfully.", "success")
+    return redirect(url_for('technician_dashboard'))
+
 
 
 
