@@ -72,6 +72,7 @@ def init_db():
         ("5", "Another", "Tenant", "tenant3@test.com",
          hashlib.sha256("123456".encode()).hexdigest(), "tenant", "2000-03-15", "male")
     ]
+    
 
     c.executemany("""
     INSERT INTO users (id, fname, lname, email, password, role, birth_date, gender)
