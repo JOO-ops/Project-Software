@@ -105,7 +105,9 @@
                         </td>
                         <td>
                             {% if user.role == 'tenant' %}
-                                <a href="{{ url_for('admin_view_tenant_requests', tenant_id=user.id) }}" class="action-link">View Requests</a>
+                                <a href="{{ url_for('admin_view_tenant_requests', tenant_id=user.id) }}">
+                                    View Requests
+                                </a>
                             {% else %}
                                 <span style="color: #999;">N/A</span>
                             {% endif %}

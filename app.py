@@ -21,7 +21,8 @@ def get_db_connection():
 def init_db():
     # --- FIX 1: Delete existing DB to ensure clean data/schema on startup ---
     if os.path.exists(DB_NAME):
-        os.remove(DB_NAME)
+        return
+        #os.remove(DB_NAME)
 
     # Only proceed with creation if the file doesn't exist (which it won't after the line above)
     # The 'if not os.path.exists(DB_NAME):' is no longer strictly necessary but kept for flow
@@ -67,7 +68,9 @@ def init_db():
         ("3", "Tech", "User", "tech@test.com",
          hashlib.sha256("123456".encode()).hexdigest(), "technician", "1978-12-25", "Male"),
         ("4", "Another", "Tenant", "tenant2@test.com",
-         hashlib.sha256("123456".encode()).hexdigest(), "tenant", "2000-03-15", "Female")
+         hashlib.sha256("123456".encode()).hexdigest(), "tenant", "2000-03-15", "Female"),
+        ("5", "Another", "Tenant", "tenant3@test.com",
+         hashlib.sha256("123456".encode()).hexdigest(), "tenant", "2000-03-15", "male")
     ]
 
     c.executemany("""
@@ -86,6 +89,15 @@ def init_db():
         ("r4", "Broken Door", "Front door lock is jammed.", "Pending", "3", "2025-11-03 14:00:00", "4"),
         ("r5", "Electrical Wiring", "Outlet in bedroom sparking.", "Completed", "3", "2025-11-04 09:00:00", "2")
     ]
+
+    #users = [
+    #{"id": 1, "fname": "Admin", "lname": "User", "email": "admin@test.com", "role": "admin"},
+    #{"id": 2, "fname": "Tenant", "lname": "User", "email": "tenant@test.com", "role": "tenant"},
+    #{"id": 3, "fname": "Tech", "lname": "User", "email": "tech@test.com", "role": "technician"},
+    #{"id": 4, "fname": "Another", "lname": "Tenant", "email": "tenant2@test.com", "role": "tenant"},
+   # ]
+
+    #requests = []
 
     c.executemany("""
     INSERT INTO requests (id, title, description, status, assigned_to, date, user_id)
@@ -226,37 +238,59 @@ def dashboard():
         return redirect(url_for('tenant_dashboard'))
 
 # ----------------- ADMIN DASHBOARD -----------------
-@app.route('/admin/dashboard', methods=['GET'])
+@app.route('/admin/dashboard', methods=['GET', 'POST'])
 @Role_Authentication(["admin"])
 def admin_dashboard():
     conn = get_db_connection()
     search_term = request.args.get('search', '')
-    
-    # Base query to get recent requests (with a JOIN to show the assigned technician's name)
+
+    # Fetch tenants and technicians for create request form
+    tenants = conn.execute("SELECT id, fname, lname FROM users WHERE role='tenant'").fetchall()
+    technicians = conn.execute("SELECT id, fname, lname FROM users WHERE role='technician'").fetchall()
+
+    # Handle Create Request form submission
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        tenant_id = request.form.get('tenant')
+        technician_id = request.form.get('technician')
+        status = request.form.get('status', 'Pending')
+
+        if not title or not description or not tenant_id:
+            flash("Title, Description, and Tenant selection are required.", "error")
+        else:
+            req_id = Generate_id()
+            date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            conn.execute(
+                "INSERT INTO requests (id, title, description, status, assigned_to, date, user_id) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (req_id, title, description, status, technician_id if technician_id != 'none' else None, date, tenant_id)
+            )
+            conn.commit()
+            flash("Request created successfully!", "success")
+            return redirect(url_for('admin_dashboard'))
+
+    # Fetch recent requests (with search)
     query = """
         SELECT r.id, r.title, r.status, r.date, 
                u.fname AS assigned_fname, u.lname AS assigned_lname
         FROM requests r
         LEFT JOIN users u ON r.assigned_to = u.id
     """
-    
-    # Add search filter if a search term is present
     params = []
     if search_term:
         query += " WHERE r.title LIKE ? OR r.status LIKE ? "
         search_like = f'%{search_term}%'
         params.extend([search_like, search_like])
-        
     query += " ORDER BY r.date DESC LIMIT 5"
-    
     recent = conn.execute(query, params).fetchall()
 
-    # Get stats
+    # Stats
     total_requests = conn.execute("SELECT COUNT(*) FROM requests").fetchone()[0]
     completed = conn.execute("SELECT COUNT(*) FROM requests WHERE status='Completed'").fetchone()[0]
     pending = conn.execute("SELECT COUNT(*) FROM requests WHERE status='Pending'").fetchone()[0]
-    
-    # Format recent requests for the template
+
+    # Format recent requests
     formatted_recent = []
     for req in recent:
         assigned_to_name = f"{req['assigned_fname']} {req['assigned_lname']}" if req['assigned_fname'] else 'Unassigned'
@@ -267,13 +301,20 @@ def admin_dashboard():
             'assigned_to': assigned_to_name,
             'date': req['date']
         })
-        
+
     conn.close()
-    
-    # Pass search term back to template to keep it in the search bar
-    return render_template('admin_dashboard.html', role=session.get('role'),
-                           total_requests=total_requests, completed=completed,
-                           pending=pending, recent=formatted_recent)
+
+    return render_template('admin_dashboard.html', 
+                           role=session.get('role'),
+                           total_requests=total_requests, 
+                           completed=completed,
+                           pending=pending,
+                           recent=formatted_recent,
+                           tenants=tenants,
+                           technicians=technicians,
+                           search_term=search_term,
+                           active_page='dashboard')
+
 
 # ----------------- ADMIN - VIEW TENANT REQUESTS (NEW) -----------------
 @app.route('/admin/tenant_view/<tenant_id>')
@@ -305,15 +346,16 @@ def admin_view_tenant_requests(tenant_id):
     
     # Recent requests (with assigned technician details)
     recent_requests_query = """
-        SELECT r.id, r.title, r.status, r.date, 
-               u_tech.fname AS assigned_fname, u_tech.lname AS assigned_lname
-        FROM requests r
-        LEFT JOIN users u_tech ON r.assigned_to = u_tech.id
-        WHERE r.user_id = ?
-        ORDER BY r.date DESC
-        LIMIT 10
-    """
+    SELECT r.id, r.title, r.status, r.date,
+           u_tech.fname AS assigned_fname, u_tech.lname AS assigned_lname
+    FROM requests r
+    LEFT JOIN users u_tech ON r.assigned_to = u_tech.id
+    WHERE r.user_id = ?
+    ORDER BY r.date DESC
+    LIMIT 10
+"""
     recent_requests_data = conn.execute(recent_requests_query, (tenant_id,)).fetchall()
+
     conn.close()
 
     formatted_recent = []
@@ -417,10 +459,16 @@ def admin_manage_request(request_id):
 @Role_Authentication(["admin"])
 def admin_users():
     conn = get_db_connection()
-    users = conn.execute("SELECT id, fname, lname, email, role FROM users ORDER BY role, lname").fetchall()
+    users = conn.execute(
+        "SELECT id, fname, lname, email, role FROM users ORDER BY id"
+    ).fetchall()
     conn.close()
-    users = [dict(user) for user in users]
-    return render_template('admin_users.html', users=users, active_page='users')
+
+    return render_template(
+        'admin_users.html',
+        users=users,
+        active_page='users'
+    )
 
 # ----------------- ADMIN - ALL REQUESTS -----------------
 @app.route('/admin/all_requests')
@@ -457,6 +505,40 @@ def admin_all_requests():
     
     # A simple new template (admin_all_requests.html) would be best.
     return render_template('admin_all_requests.html', requests=formatted_requests, active_page='all_requests')
+
+# ----------------- Admin Create Request -----------------
+@app.route('/admin/create_request', methods=['GET', 'POST'])
+@Role_Authentication(["admin"])
+def admin_create_request():
+    conn = get_db_connection()
+    
+    # Always load tenants/technicians for the form
+    tenants = conn.execute("SELECT id, fname, lname FROM users WHERE role='tenant'").fetchall()
+    technicians = conn.execute("SELECT id, fname, lname FROM users WHERE role='technician'").fetchall()
+    
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        user_id = request.form.get('user_id')        # ← matches your form name
+        assigned_to = request.form.get('assigned_to') or None
+        status = request.form.get('status', 'Pending')
+        
+        if not title or not description or not user_id:
+            flash('Title, description, and tenant are required.', 'error')
+        else:
+            req_id = Generate_id()
+            date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            conn.execute("""
+                INSERT INTO requests (id, title, description, status, assigned_to, date, user_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (req_id, title, description, status, assigned_to, date, user_id))
+            conn.commit()
+            flash('Request created successfully!', 'success')
+            return redirect(url_for('admin_dashboard'))
+    
+    conn.close()
+    return render_template('admin_create_request.html', tenants=tenants, technicians=technicians)
+
 
 
 # ----------------- TECHNICIAN DASHBOARD -----------------
