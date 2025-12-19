@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Requests</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;display:flex;background:#f4f6f9;min-height:100vh}
+
+.sidebar{width:240px;background:#2c3e50;color:#fff;padding:20px}
+.sidebar a{color:#fff;text-decoration:none;display:block;padding:12px;border-radius:8px;margin:8px 0}
+.sidebar a:hover,.active{background:#34495e}
+
+.main{flex:1;padding:30px}
+table{width:100%;background:#fff;border-collapse:collapse;border-radius:10px;overflow:hidden}
+th,td{padding:12px;border-bottom:1px solid #ddd}
+th{background:#2c3e50;color:#fff}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h2>Tenant Panel</h2>
+    <a href="{{ url_for('tenant_dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('submit_request') }}">Submit Request</a>
+    <a href="{{ url_for('tenant_all_requests') }}" class="active">My Requests</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</div>
+
+<div class="main">
+<h2>All My Requests</h2>
+
+<table>
+<thead>
+<tr>
+<th>ID</th><th>Title</th><th>Status</th><th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+{% for req in requests %}
+<tr>
+<td>{{ req.id }}</td>
+<td>{{ req.title }}</td>
+<td>{{ req.status }}</td>
+<td><a href="{{ url_for('view_single_request', req_id=req.id) }}">View</a></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+</body>
+</html>
