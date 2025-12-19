@@ -749,6 +749,56 @@ def view_single_request(req_id):
 
     return render_template('tenant_view_request.html', request=req, role=session.get('role'))
 
+@app.route('/admin/technician_view/<technician_id>')
+@Role_Authentication(["admin"])
+def admin_view_technician_requests(technician_id):
+    conn = get_db_connection()
+
+    tech = conn.execute(
+        "SELECT id, fname, lname, email FROM users WHERE id = ? AND role = 'technician'",
+        (technician_id,)
+    ).fetchone()
+
+    if not tech:
+        flash("Technician not found.", "error")
+        conn.close()
+        return redirect(url_for('admin_users'))
+
+    total_jobs = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE assigned_to = ?",
+        (technician_id,)
+    ).fetchone()[0]
+
+    completed = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE assigned_to = ? AND status = 'Completed'",
+        (technician_id,)
+    ).fetchone()[0]
+
+    in_progress = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE assigned_to = ? AND status = 'In Progress'",
+        (technician_id,)
+    ).fetchone()[0]
+
+    jobs = conn.execute("""
+        SELECT id, title, status, date
+        FROM requests
+        WHERE assigned_to = ?
+        ORDER BY date DESC
+    """, (technician_id,)).fetchall()
+
+    conn.close()
+
+    return render_template(
+        'admin_technician_view.html',
+        technician=tech,
+        total_jobs=total_jobs,
+        completed=completed,
+        in_progress=in_progress,
+        jobs=jobs,
+        active_page='users'
+    )
+
+
 # ----------------- ALL REQUESTS -----------------
 @app.route('/tenant/requests')
 @Role_Authentication(["tenant"])
