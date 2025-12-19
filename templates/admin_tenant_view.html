@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
-    <title>Home Maintenance System - {{ tenant_data.fname }}'s Requests</title>
+    <title>Home Maintenance System - {{ tenant.fname }}'s Requests</title>
     <style>
         /* CSS from your previous templates (Ensuring consistent styles) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -58,8 +58,8 @@
 
         <div class="content-section">
             <div class="tenant-info">
-                <h2>Requests for **{{ tenant_data.fname }} {{ tenant_data.lname }}**</h2>
-                <p>Email: **{{ tenant_data.email }}**</p>
+                <h2>Requests for **{{ tenant.fname }} {{ tenant.lname }}**</h2>
+                <p>Email: **{{ tenant.email }}**</p>
             </div>
             
             <table>

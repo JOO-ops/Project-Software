@@ -7,14 +7,14 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
+
 <body>
   <header>
     <h1>CareConnect</h1>
     <nav>
-      <a href="index.html" class="active">Home</a>
-      <a href="register.html">Register</a>
-      <a href="login.html">Log In</a>
-      <a href="about.html">About Us</a>
+    <a href="{{ url_for('home') }}" class="active">Home</a>
+    <a href="{{ url_for('register') }}">Register</a>
+    <a href="{{ url_for('login') }}">Log In</a>
     </nav>
   </header>
 
@@ -28,8 +28,8 @@
       </p>
 
       <div class="buttons">
-        <a href="register.html" class="btn">Create an Account</a>
-        <a href="login.html" class="btn">Log In</a>
+        <a href="{{ url_for('register') }}" class="btn">Create an Account</a>
+        <a href="{{ url_for('login') }}" class="btn">Log In</a>
       </div>
     </section>
   </main>
@@ -39,4 +39,3 @@
   </footer>
 </body>
 </html>
-
