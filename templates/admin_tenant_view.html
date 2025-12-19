@@ -56,51 +56,53 @@
             <a href="{{ url_for('admin_users') }}" class="logout-btn" style="background: #95a5a6;">← Back to Users</a>
         </div>
 
-        <div class="content-section">
-            <div class="tenant-info">
-                <h2>Requests for **{{ tenant.fname }} {{ tenant.lname }}**</h2>
-                <p>Email: **{{ tenant.email }}**</p>
-            </div>
-            
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Request Title</th>
-                        <th>Date Submitted</th>
-                        <th>Status</th>
-                        <th>Assigned To</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for req in requests %}
-                    <tr>
-                        <td>{{ req.id }}</td>
-                        <td>{{ req.title }}</td>
-                        <td>{{ req.date }}</td>
-                        <td>
-                            {% if req.status == 'Pending' %}
-                                <span class="status-badge status-pending">Pending</span>
-                            {% elif req.status == 'Completed' %}
-                                <span class="status-badge status-completed">Completed</span>
-                            {% else %}
-                                <span class="status-badge status-in-progress">In Progress</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ req.assigned_to or 'Unassigned' }}</td>
-                        <td>
-                            <a href="{{ url_for('admin_manage_request', request_id=req.id) }}" class="action-link">Manage</a>
-                        </td>
-                    </tr>
+<div class="content-section">
+    <div class="tenant-info">
+        <h2>Requests for **{{ tenant.fname }} {{ tenant.lname }}**</h2>
+        <p>Email: **{{ tenant.email }}**</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Request Title</th>
+                <th>Date Submitted</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in recent %}
+            <tr>
+                <td>{{ req.id }}</td>
+                <td>{{ req.title }}</td>
+                <td>{{ req.date }}</td>
+                <td>
+                    {% if req.status == 'Pending' %}
+                        <span class="status-badge status-pending">Pending</span>
+                    {% elif req.status == 'Completed' %}
+                        <span class="status-badge status-completed">Completed</span>
+                    {% elif req.status == 'In Progress' %}
+                        <span class="status-badge status-in-progress">In Progress</span>
                     {% else %}
-                    <tr>
-                        <td colspan="6">This tenant has not submitted any maintenance requests yet.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                        <span class="status-badge">{{ req.status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ req.assigned_to }}</td>
+                <td>
+                    <a href="{{ url_for('admin_manage_request', request_id=req.id) }}" class="action-link">Manage</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6">This tenant has not submitted any maintenance requests yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
         <footer>
             <p>&copy; 2025 Home Maintenance System. Tenant Request View.</p>
