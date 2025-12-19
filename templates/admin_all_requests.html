@@ -75,45 +75,53 @@
             </div>
         </div>
 
-        <div class="content-section">
-            <h2>All System Users</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if users %}
-                        {% for user in users %}
-                        <tr>
-                            <td>{{ user.id }}</td>
-                            <td>{{ user.fname }} {{ user.lname }}</td>
-                            <td>{{ user.email }}</td>
-                            <td>
-                                <span class="status-badge status-{{ user.role }}">{{ user.role|capitalize }}</span>
-                            </td>
-                            <td>
-                                {% if user.role == 'tenant' %}
-                                    <a href="{{ url_for('admin_view_tenant_requests', tenant_id=user.id) }}" class="action-link">View Requests</a>
-                                {% else %}
-                                    <span style="color: #999;">N/A</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="5">No users found in the system.</td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div>
+<div class="content-section">
+    <h2>All Maintenance Requests</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Requested By</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if requests %}
+                {% for req in requests %}
+                <tr>
+                    <td>{{ req.id }}</td>
+                    <td>{{ req.title }}</td>
+                    <td>{{ req.requested_by }}</td>
+                    <td>
+                        {% if req.status == 'Pending' %}
+                            <span class="status-badge status-pending">Pending</span>
+                        {% elif req.status == 'Completed' %}
+                            <span class="status-badge status-completed">Completed</span>
+                        {% elif req.status == 'In Progress' %}
+                            <span class="status-badge status-in-progress">In Progress</span>
+                        {% else %}
+                            <span class="status-badge">{{ req.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ req.assigned_to }}</td>
+                    <td>{{ req.date }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_manage_request', request_id=req.id) }}" class="action-link">Manage</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="7">No requests found.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
 
         <footer>
             <p>&copy; 2025 Home Maintenance System. All rights reserved.</p>
