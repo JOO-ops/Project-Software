@@ -540,13 +540,57 @@ def admin_create_request():
     return render_template('admin_create_request.html', tenants=tenants, technicians=technicians)
 
 
+# ================= TECHNICIAN ROUTES =================
 
-# ----------------- TECHNICIAN DASHBOARD -----------------
 @app.route('/tech/dashboard')
-@Role_Authentication(["technician"])
+@login_Authentication
+@Role_Authentication(['technician'])
 def technician_dashboard():
-    # You would typically fetch assigned request stats here
-    return render_template('tech_dashboard.html', role=session.get('role'))
+    return render_template('tech_dashboard.html', active_page='dashboard')
+
+
+@app.route('/tech/job-queue')
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_job_queue():
+    return render_template('tech-view-job-queue.html', active_page='job_queue')
+
+
+@app.route('/tech/schedule')
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_schedule():
+    return render_template('tech_schedule.html', active_page='schedule')
+
+
+@app.route('/tech/earnings')
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_earnings():
+    return render_template('tech_earnings.html', active_page='earnings')
+
+
+@app.route('/tech/inventory')
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_inventory():
+    return render_template('tech_inventory.html', active_page='inventory')
+
+
+@app.route('/tech/reports')
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_reports():
+    return render_template('tech_reports.html', active_page='reports')
+
+
+@app.route('/tech/profile')
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_profile():
+    return render_template('tech_profile.html', active_page='profile')
+
+
 
 # ----------------- TENANT DASHBOARD -----------------
 @app.route('/tenant/dashboard')
