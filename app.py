@@ -72,6 +72,7 @@ def init_db():
         ("5", "Another", "Tenant", "tenant3@test.com",
          hashlib.sha256("123456".encode()).hexdigest(), "tenant", "2000-03-15", "male")
     ]
+    
 
     c.executemany("""
     INSERT INTO users (id, fname, lname, email, password, role, birth_date, gender)
@@ -540,13 +541,129 @@ def admin_create_request():
     return render_template('admin_create_request.html', tenants=tenants, technicians=technicians)
 
 
+# ================= TECHNICIAN ROUTES =================
 
-# ----------------- TECHNICIAN DASHBOARD -----------------
 @app.route('/tech/dashboard')
-@Role_Authentication(["technician"])
+@login_Authentication
+@Role_Authentication(['technician'])
 def technician_dashboard():
-    # You would typically fetch assigned request stats here
-    return render_template('tech_dashboard.html', role=session.get('role'))
+    conn = get_db_connection()
+    tech_id = session.get('User_id')
+
+    # ---- Stats (same method as admin, but filtered) ----
+    total = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE assigned_to = ?",
+        (tech_id,)
+    ).fetchone()[0]
+
+    completed = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE assigned_to = ? AND status = 'Completed'",
+        (tech_id,)
+    ).fetchone()[0]
+
+    pending = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE assigned_to = ? AND status = 'Pending'",
+        (tech_id,)
+    ).fetchone()[0]
+
+    # ---- Table data (same idea as admin recent requests) ----
+    jobs = conn.execute("""
+        SELECT id, title, status, date
+        FROM requests
+        WHERE assigned_to = ?
+        ORDER BY date DESC
+    """, (tech_id,)).fetchall()
+
+    conn.close()
+
+    return render_template(
+        'tech_dashboard.html',
+        total=total,
+        completed=completed,
+        pending=pending,
+        jobs=jobs,
+        active_page='dashboard'
+    )
+
+
+
+@app.route('/tech/job-queue')
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_job_queue():
+    return render_template('tech-view-job-queue.html', active_page='job_queue')
+
+
+@app.route('/tech/schedule')
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_schedule():
+    return render_template('tech_schedule.html', active_page='schedule')
+
+
+@app.route('/tech/earnings')
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_earnings():
+    return render_template('tech_earnings.html', active_page='earnings')
+
+
+@app.route('/tech/inventory')
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_inventory():
+    return render_template('tech_inventory.html', active_page='inventory')
+
+
+@app.route('/tech/reports')
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_reports():
+    return render_template('tech_reports.html', active_page='reports')
+
+
+@app.route('/tech/profile')
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_profile():
+    return render_template('tech_profile.html', active_page='profile')
+
+@app.route('/tech/update_status/<request_id>', methods=['POST'])
+@login_Authentication
+@Role_Authentication(['technician'])
+def tech_update_status(request_id):
+    new_status = request.form.get('status')
+    tech_id = session.get('User_id')
+
+    if new_status not in ['In Progress', 'Completed']:
+        flash("Invalid status.", "error")
+        return redirect(url_for('technician_dashboard'))
+
+    conn = get_db_connection()
+
+    # Security check: technician can only update their own jobs
+    job = conn.execute(
+        "SELECT * FROM requests WHERE id = ? AND assigned_to = ?",
+        (request_id, tech_id)
+    ).fetchone()
+
+    if not job:
+        conn.close()
+        flash("Unauthorized action.", "error")
+        return redirect(url_for('technician_dashboard'))
+
+    conn.execute(
+        "UPDATE requests SET status = ? WHERE id = ?",
+        (new_status, request_id)
+    )
+    conn.commit()
+    conn.close()
+
+    flash("Job status updated successfully.", "success")
+    return redirect(url_for('technician_dashboard'))
+
+
+
 
 # ----------------- TENANT DASHBOARD -----------------
 @app.route('/tenant/dashboard')
@@ -632,6 +749,56 @@ def view_single_request(req_id):
 
     return render_template('tenant_view_request.html', request=req, role=session.get('role'))
 
+@app.route('/admin/technician_view/<technician_id>')
+@Role_Authentication(["admin"])
+def admin_view_technician_requests(technician_id):
+    conn = get_db_connection()
+
+    tech = conn.execute(
+        "SELECT id, fname, lname, email FROM users WHERE id = ? AND role = 'technician'",
+        (technician_id,)
+    ).fetchone()
+
+    if not tech:
+        flash("Technician not found.", "error")
+        conn.close()
+        return redirect(url_for('admin_users'))
+
+    total_jobs = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE assigned_to = ?",
+        (technician_id,)
+    ).fetchone()[0]
+
+    completed = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE assigned_to = ? AND status = 'Completed'",
+        (technician_id,)
+    ).fetchone()[0]
+
+    in_progress = conn.execute(
+        "SELECT COUNT(*) FROM requests WHERE assigned_to = ? AND status = 'In Progress'",
+        (technician_id,)
+    ).fetchone()[0]
+
+    jobs = conn.execute("""
+        SELECT id, title, status, date
+        FROM requests
+        WHERE assigned_to = ?
+        ORDER BY date DESC
+    """, (technician_id,)).fetchall()
+
+    conn.close()
+
+    return render_template(
+        'admin_technician_view.html',
+        technician=tech,
+        total_jobs=total_jobs,
+        completed=completed,
+        in_progress=in_progress,
+        jobs=jobs,
+        active_page='users'
+    )
+
+
 # ----------------- ALL REQUESTS -----------------
 @app.route('/tenant/requests')
 @Role_Authentication(["tenant"])
@@ -654,4 +821,3 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
-

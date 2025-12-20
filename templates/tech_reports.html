@@ -16,7 +16,6 @@ body {
     color: #333;
 }
 
-/* ===== Sidebar (Same as Technician Dashboard) ===== */
 .sidebar {
     width: 260px;
     background: #1f2d3d;
@@ -48,7 +47,7 @@ body {
     background: #34495e;
 }
 
-/* ===== Main Content ===== */
+
 .main {
     flex: 1;
     padding: 20px;
@@ -59,7 +58,6 @@ body {
     color: #2c3e50;
 }
 
-/* ===== Form Styling ===== */
 form {
     background: #fff;
     padding: 20px;
@@ -101,17 +99,49 @@ button:hover {
 
 <body>
 
+
 <div class="sidebar">
-    <div>
-        <h2>Technician Panel</h2>
-        <a href="tech_dashboard.html">Dashboard</a>
-        <a href="tech-view-job-queue.html">Job Queue</a>
-        <a href="tech_schedule.html">Schedule</a>
-        <a href="tech_earnings.html">Earnings</a>
-        <a href="tech_inventory.html">Inventory</a>
-        <a href="tech_reports.html" class="active">Reports</a>
+  <div>
+    <h2>Technician Panel</h2>
+
+    <a href="{{ url_for('technician_dashboard') }}"
+       class="{{ 'active' if active_page == 'dashboard' else '' }}">
+       Dashboard
+    </a>
+
+    <a href="{{ url_for('tech_job_queue') }}"
+       class="{{ 'active' if active_page == 'job_queue' else '' }}">
+       Job Queue
+    </a>
+
+    <a href="{{ url_for('tech_schedule') }}"
+       class="{{ 'active' if active_page == 'schedule' else '' }}">
+       Schedule
+    </a>
+
+
+    <a href="{{ url_for('tech_inventory') }}"
+       class="{{ 'active' if active_page == 'inventory' else '' }}">
+       Inventory
+    </a>
+
+    <a href="{{ url_for('tech_reports') }}"
+       class="{{ 'active' if active_page == 'reports' else '' }}">
+       Reports
+    </a>
+
+            <a href="{{ url_for('logout') }}">
+        Logout
+        </a>
+
+
+  </div>
+
+
+</div>
+
     </div>
-    <a href="logout.html">Logout</a>
+
 </div>
 
 <div class="main">
@@ -123,6 +153,5 @@ button:hover {
         <button type="submit">Submit</button>
     </form>
 </div>
-
 </body>
 </html>
