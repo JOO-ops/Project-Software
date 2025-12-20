@@ -108,6 +108,12 @@
                                 <a href="{{ url_for('admin_view_tenant_requests', tenant_id=user.id) }}">
                                     View Requests
                                 </a>
+
+                            {% elif user.role == 'technician' %}
+                                <a href="{{ url_for('admin_view_technician_requests', technician_id=user.id) }}">
+                                    View Requests
+                                </a>
+
                             {% else %}
                                 <span style="color: #999;">N/A</span>
                             {% endif %}
